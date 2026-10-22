@@ -1,8 +1,8 @@
 # Changelog
 
-## Unreleased
+## 1.1.0 — 2026-10-22
 
-- Added light theme with a restart prompt and theme selection in Settings.
+- Added light theme with immediate switching and theme selection in Settings.
 - Added 100% / 125% interface scale.
 - Added draggable table columns and sortable Port / Process / Project headers.
 - Added a row context menu with health, details, open, copy, and kill actions.
@@ -15,7 +15,8 @@
 - Replaced the settings list with collapsible groups and widened the settings content.
 - Moved secondary row actions into a compact “…” menu while keeping the right-click menu.
 - Added collapsible project groups, search-hit highlighting, and asynchronous icon loading.
-- Theme and interface-scale changes now rebuild the window and apply immediately.
+- Persisted collapsed project groups across restarts.
+- Theme and interface-scale changes now rebuild the window without a blank frame and apply immediately.
 - Added a bottom-sheet detail layout for narrow windows.
 
 ## 1.0.0 — 2026-10-21

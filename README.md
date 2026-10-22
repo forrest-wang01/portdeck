@@ -14,7 +14,7 @@
 </p>
 
 <p align="center">
-  <a href="../../releases"><img alt="Release" src="https://img.shields.io/badge/release-v1.0.0-2dd4bf" /></a>
+  <a href="../../releases"><img alt="Release" src="https://img.shields.io/badge/release-v1.1.0-2dd4bf" /></a>
   <img alt="Platform" src="https://img.shields.io/badge/platform-Windows%2010%20%2F%2011-60a5fa" />
   <img alt=".NET" src="https://img.shields.io/badge/.NET-10-512bd4" />
   <img alt="License" src="https://img.shields.io/badge/license-MIT-94a3b8" />
@@ -58,7 +58,7 @@ PortDeck 把这件事变成一个清爽的本地仪表盘：
 
 ## 下载
 
-从 [Releases](../../releases) 下载 `PortDeck-1.0.0-win-x64.exe`，双击运行即可，不需要安装 .NET 运行时。ARM64 构建由 CI 单独产出。发布说明见 [docs/RELEASE_NOTES_v1.0.0.md](docs/RELEASE_NOTES_v1.0.0.md)。
+从 [Releases](../../releases) 下载 `PortDeck-1.1.0-win-x64.exe`，双击运行即可，不需要安装 .NET 运行时。ARM64 构建由 CI 单独产出。发布说明见 [docs/RELEASE_NOTES_v1.1.0.md](docs/RELEASE_NOTES_v1.1.0.md)。
 
 > Release 工作流已接入 SignPath Foundation 开源代码签名。如果维护者还没有配置 SignPath，Windows SmartScreen 可能提示「未知发布者」，选择「更多信息」→「仍要运行」即可。配置步骤见 [docs/CODE_SIGNING.md](docs/CODE_SIGNING.md)。
 
@@ -163,8 +163,8 @@ Pop-Location
 发布由标签触发，不需要手动上传 exe：
 
 ```powershell
-git tag v1.0.0
-git push origin v1.0.0
+git tag v1.1.0
+git push origin v1.1.0
 ```
 
 `.github/workflows/release.yml` 会：

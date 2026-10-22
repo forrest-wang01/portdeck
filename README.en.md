@@ -14,7 +14,7 @@
 </p>
 
 <p align="center">
-  <a href="../../releases"><img alt="Release" src="https://img.shields.io/badge/release-v1.0.0-2dd4bf" /></a>
+  <a href="../../releases"><img alt="Release" src="https://img.shields.io/badge/release-v1.1.0-2dd4bf" /></a>
   <img alt="Platform" src="https://img.shields.io/badge/platform-Windows%2010%20%2F%2011-60a5fa" />
   <img alt=".NET" src="https://img.shields.io/badge/.NET-10-512bd4" />
   <img alt="License" src="https://img.shields.io/badge/license-MIT-94a3b8" />
@@ -58,7 +58,7 @@ PortDeck turns that into one local dashboard:
 
 ## Download
 
-Download `PortDeck-1.0.0-win-x64.exe` from [Releases](../../releases). It is a self-contained single-file executable and does not require a separate .NET runtime. ARM64 is built separately by CI. See [the v1.0.0 release notes](docs/RELEASE_NOTES_v1.0.0.md).
+Download `PortDeck-1.1.0-win-x64.exe` from [Releases](../../releases). It is a self-contained single-file executable and does not require a separate .NET runtime. ARM64 is built separately by CI. See [the v1.1.0 release notes](docs/RELEASE_NOTES_v1.1.0.md).
 
 > The release workflow is wired to SignPath Foundation for open-source code signing. If SignPath is not configured yet, SmartScreen may show “Unknown publisher”; choose **More info → Run anyway**. See [docs/CODE_SIGNING.md](docs/CODE_SIGNING.md).
 
@@ -163,8 +163,8 @@ You can also dump the current scan as JSON:
 Releases are tag-driven:
 
 ```powershell
-git tag v1.0.0
-git push origin v1.0.0
+git tag v1.1.0
+git push origin v1.1.0
 ```
 
 `.github/workflows/release.yml` builds versioned x64 and ARM64 executables, generates SHA256 files, optionally signs both binaries, and publishes a GitHub Release.

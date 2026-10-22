@@ -195,7 +195,7 @@
 
                     <StackPanel Grid.Row="2" Margin="20,0,20,18">
                         <TextBlock x:Name="VersionText"
-                                   Text="v1.0.0"
+                                   Text="v1.1.0"
                                    Foreground="{StaticResource FaintBrush}"
                                    FontSize="10.5" />
                     </StackPanel>
@@ -1109,7 +1109,7 @@
                                 <StackPanel>
                                     <TextBlock Text="{loc:Loc About}" FontSize="14" FontWeight="SemiBold" />
                                     <TextBlock x:Name="AboutVersionText"
-                                               Text="v1.0.0"
+                                               Text="v1.1.0"
                                                Style="{StaticResource MutedTextStyle}"
                                                Margin="0,6,0,0" />
                                     <TextBlock Text="{loc:Loc AboutTech}"

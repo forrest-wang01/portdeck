@@ -1,0 +1,38 @@
+name: Feature request
+description: Suggest a focused improvement for PortDeck.
+title: "[Feature]: "
+labels: ["enhancement"]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: What problem are you trying to solve?
+      description: Describe the workflow, not only the proposed button.
+      placeholder: I have several services on the same port across WSL and Windows, and I cannot tell which one is which.
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed solution
+    validations:
+      required: true
+  - type: dropdown
+    id: scope
+    attributes:
+      label: Scope
+      options:
+        - Small UI improvement
+        - New scanner capability
+        - Integration (WSL / Docker / editor)
+        - Packaging / distribution
+        - Other
+    validations:
+      required: true
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: Checklist
+      options:
+        - label: This keeps PortDeck local-first and does not require a cloud service.
+          required: true

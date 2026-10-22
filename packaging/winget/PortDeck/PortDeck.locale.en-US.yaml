@@ -1,0 +1,10 @@
+﻿PackageIdentifier: PortDeck.PortDeck
+PackageVersion: 1.0.0
+PackageLocale: en-US
+Publisher: PortDeck contributors
+PackageName: PortDeck
+License: MIT
+ShortDescription: Local TCP/UDP port and dev-service dashboard for Windows
+PackageUrl: https://github.com/forrest-wang01/portdeck
+ManifestType: defaultLocale
+ManifestVersion: 1.6.0

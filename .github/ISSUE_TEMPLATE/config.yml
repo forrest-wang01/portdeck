@@ -1,0 +1,5 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Questions and ideas
+    url: https://github.com/forrest-wang01/portdeck/issues
+    about: Ask a question or share how you use PortDeck.

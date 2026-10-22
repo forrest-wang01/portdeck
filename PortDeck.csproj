@@ -1,0 +1,40 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net10.0-windows</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>disable</ImplicitUsings>
+    <UseWPF>true</UseWPF>
+    <UseWindowsForms>true</UseWindowsForms>
+    <ApplicationIcon>Assets\app.ico</ApplicationIcon>
+    <AssemblyName>PortDeck</AssemblyName>
+    <RootNamespace>PortDeck</RootNamespace>
+    <Version>1.0.0</Version>
+    <FileVersion>$(Version).0</FileVersion>
+    <Authors>PortDeck contributors</Authors>
+    <Description>A clean, local-first dashboard for the ports and dev servers running on your Windows machine.</Description>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <RepositoryUrl>https://github.com/forrest-wang01/portdeck</RepositoryUrl>
+    <ApplicationManifest>app.manifest</ApplicationManifest>
+    <NoWarn>$(NoWarn);WFO0003</NoWarn>
+    <SatelliteResourceLanguages>en</SatelliteResourceLanguages>
+    <DebugType>embedded</DebugType>
+    <PublishSingleFile>true</PublishSingleFile>
+    <IncludeNativeLibrariesForSelfExtract>true</IncludeNativeLibrariesForSelfExtract>
+    <EnableCompressionInSingleFile>true</EnableCompressionInSingleFile>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="System.Management" Version="10.0.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <AssemblyMetadata Include="RepositoryUrl" Value="$(RepositoryUrl)" />
+    <Compile Remove="tests\**\*.cs" />
+    <Resource Include="Assets\app.ico" />
+    <Resource Include="Localization\Strings.zh-CN.json" />
+    <Resource Include="Localization\Strings.en-US.json" />
+  </ItemGroup>
+
+</Project>

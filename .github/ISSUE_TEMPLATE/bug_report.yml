@@ -1,0 +1,68 @@
+name: Bug report
+description: Report a scanning, display, or process-control problem.
+title: "[Bug]: "
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for reporting a bug. Please avoid pasting secrets, tokens, or private paths.
+  - type: input
+    id: version
+    attributes:
+      label: PortDeck version
+      description: Shown at the bottom of the sidebar, for example v0.1.0.
+      placeholder: v0.1.0
+    validations:
+      required: true
+  - type: input
+    id: windows
+    attributes:
+      label: Windows version
+      placeholder: Windows 11 23H2 x64
+    validations:
+      required: true
+  - type: dropdown
+    id: area
+    attributes:
+      label: Area
+      options:
+        - Port scanning
+        - Process / project information
+        - Kill process flow
+        - UI / layout
+        - Build or packaging
+        - Other
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      placeholder: |
+        1. Start ...
+        2. Click ...
+        3. See ...
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behavior
+    validations:
+      required: true
+  - type: textarea
+    id: diagnostics
+    attributes:
+      label: Diagnostic output
+      description: Optionally attach the JSON produced by `PortDeck.exe --dump-ports scan.json`.
+      render: json
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: Checklist
+      options:
+        - label: I am using the latest release.
+          required: true
+        - label: I searched existing issues before opening this one.
+          required: true

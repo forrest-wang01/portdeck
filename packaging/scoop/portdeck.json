@@ -1,0 +1,24 @@
+﻿{
+    "version":  "1.0.0",
+    "description":  "Local TCP/UDP port and dev-service dashboard for Windows",
+    "homepage":  "https://github.com/forrest-wang01/portdeck",
+    "license":  "MIT",
+    "url":  "https://github.com/forrest-wang01/portdeck/releases/download/v1.0.0/PortDeck-1.0.0-win-x64.exe",
+    "hash":  "709b6e94a08c6dc9a9b4129f77f74d99fbad0db3a3edf4f031b4a81b38a9a0c7",
+    "bin":  "PortDeck-1.0.0-win-x64.exe",
+    "shortcuts":  [
+                      [
+                          "PortDeck-1.0.0-win-x64.exe",
+                          "PortDeck"
+                      ]
+                  ],
+    "checkver":  {
+                     "github":  "https://github.com/forrest-wang01/portdeck"
+                 },
+    "autoupdate":  {
+                       "hash":  {
+                                    "url":  "https://github.com/forrest-wang01/portdeck/releases/download/v$version/PortDeck-$version-win-x64.exe.sha256"
+                                },
+                       "url":  "https://github.com/forrest-wang01/portdeck/releases/download/v$version/PortDeck-$version-win-x64.exe"
+                   }
+}

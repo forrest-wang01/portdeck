@@ -1,0 +1,6 @@
+{
+  "name": "portdeck-demo-app",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Tiny local service used to test PortDeck project detection."
+}

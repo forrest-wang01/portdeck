@@ -1,0 +1,14 @@
+﻿PackageIdentifier: PortDeck.PortDeck
+PackageVersion: 1.0.0
+InstallerType: portable
+Commands:
+  - portdeck
+Installers:
+  - Architecture: x64
+    InstallerUrl: https://github.com/forrest-wang01/portdeck/releases/download/v1.0.0/PortDeck-1.0.0-win-x64.exe
+    InstallerSha256: 709B6E94A08C6DC9A9B4129F77F74D99FBAD0DB3A3EDF4F031B4A81B38A9A0C7
+  - Architecture: arm64
+    InstallerUrl: https://github.com/forrest-wang01/portdeck/releases/download/v1.0.0/PortDeck-1.0.0-win-arm64.exe
+    InstallerSha256: D6A005653884E1C04193185E10B1CDC15A67F25A72FF34EBF57369EDBA92E8BE
+ManifestType: installer
+ManifestVersion: 1.6.0

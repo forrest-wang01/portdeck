@@ -155,15 +155,6 @@ jobs:
         with:
           name: PortDeck ${{ github.ref_name }}
           generate_release_notes: true
-          append_body: |
-            ## Code signing policy
-
-            Free code signing provided by [SignPath.io](https://about.signpath.io),
-            certificate by [SignPath Foundation](https://signpath.org).
-
-            Only the Windows x64 / ARM64 executables built from this repository
-            by GitHub Actions are signed. See the repository's
-            `CODE_SIGNING_POLICY.md` and `PRIVACY.md` for details.
           prerelease: ${{ contains(github.ref_name, '-') }}
           fail_on_unmatched_files: true
           files: |
@@ -171,3 +162,32 @@ jobs:
             dist/PortDeck-*-win-x64.exe.sha256
             dist-arm64/PortDeck-*-win-arm64.exe
             dist-arm64/PortDeck-*-win-arm64.exe.sha256
+
+      - name: Add code signing policy to release notes
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          $headers = @{
+            Authorization = "Bearer $env:GH_TOKEN"
+            Accept = "application/vnd.github+json"
+            "User-Agent" = "PortDeck-release"
+          }
+          $uri = "https://api.github.com/repos/${{ github.repository }}/releases/tags/${{ github.ref_name }}"
+          $release = Invoke-RestMethod -Uri $uri -Headers $headers
+          if ($release.body -match "SignPath Foundation") { return }
+
+          $policy = @(
+            "",
+            "## Code signing policy",
+            "",
+            "Free code signing provided by [SignPath.io](https://about.signpath.io),",
+            "certificate by [SignPath Foundation](https://signpath.org).",
+            "",
+            "Only the Windows x64 / ARM64 executables built from this repository by",
+            "GitHub Actions are signed. See ``CODE_SIGNING_POLICY.md`` and ``PRIVACY.md``."
+          ) -join "`n"
+          $body = "$($release.body)$policy"
+          Invoke-RestMethod -Method Patch -Uri $uri -Headers $headers `
+            -Body (@{ body = $body } | ConvertTo-Json) `
+            -ContentType "application/json" | Out-Null

@@ -22,9 +22,6 @@ signature, and publishes only the signed files.
 
 ## Team roles
 
-> Replace the placeholders below with the actual GitHub accounts/teams before
-> applying to SignPath Foundation.
-
 - **Authors / committers**: the repository owner and maintainers with write
   access.
 - **Reviewers**: every pull request from a non-committer is reviewed by a

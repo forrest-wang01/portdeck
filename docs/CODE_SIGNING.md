@@ -65,8 +65,9 @@ token exists but any of the four variables are missing.
 
 ## How to apply
 
-Apply at **<https://signpath.org/apply>**. Before submitting, make sure the
-project already satisfies the Foundation conditions:
+Apply at **<https://signpath.org/apply>**. A prepared summary is in
+[`SIGNPATH_APPLICATION.md`](SIGNPATH_APPLICATION.md). Before submitting, make
+sure the project already satisfies the Foundation conditions:
 
 - Public GitHub repository with an OSI-approved license (PortDeck uses MIT).
 - Already released in the form to be signed (publish a `v1.0.0` release first).
@@ -75,8 +76,8 @@ project already satisfies the Foundation conditions:
   [`CODE_SIGNING_POLICY.md`](../CODE_SIGNING_POLICY.md) and the README.
 - Privacy policy. PortDeck has this in [`PRIVACY.md`](../PRIVACY.md).
 - At least one maintainer with MFA on GitHub and SignPath.
-- Clear author/reviewer/approver roles. Replace the placeholder maintainer in
-  `CODE_SIGNING_POLICY.md` before applying.
+- Clear author/reviewer/approver roles. The initial maintainer is
+  `forrest-wang01` in `CODE_SIGNING_POLICY.md`.
 - The project must not be a vulnerability scanner or include hacking tools.
   PortDeck is a local development dashboard; describe it that way in the form.
 

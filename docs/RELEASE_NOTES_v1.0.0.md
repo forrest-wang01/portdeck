@@ -24,8 +24,8 @@ processes, projects, exposure, health, history, and container/WSL context.
 
 | Asset | SHA256 |
 | --- | --- |
-| `PortDeck-1.0.0-win-x64.exe` | `709b6e94a08c6dc9a9b4129f77f74d99fbad0db3a3edf4f031b4a81b38a9a0c7` |
-| `PortDeck-1.0.0-win-arm64.exe` | `d6a005653884e1c04193185e10b1cdc15a67f25a72ff34ebf57369edba92e8be` |
+| `PortDeck-1.0.0-win-x64.exe` | `77e1452b0a8af876772eee3b9a7fe88b5f2b871dcad37a75a69f7e0d410ba938` |
+| `PortDeck-1.0.0-win-arm64.exe` | `50a78505e82c8f67b924cf15b302cb0d54ce77f56d439a3a59a125fa76b98b3d` |
 
 Each asset has a matching `.sha256` file. The ARM64 build is produced by CI
 cross-compilation and has not yet been tested on physical ARM64 hardware.

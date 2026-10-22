@@ -6,9 +6,9 @@ Commands:
 Installers:
   - Architecture: x64
     InstallerUrl: https://github.com/forrest-wang01/portdeck/releases/download/v1.0.0/PortDeck-1.0.0-win-x64.exe
-    InstallerSha256: 709B6E94A08C6DC9A9B4129F77F74D99FBAD0DB3A3EDF4F031B4A81B38A9A0C7
+    InstallerSha256: 77E1452B0A8AF876772EEE3B9A7FE88B5F2B871DCAD37A75A69F7E0D410BA938
   - Architecture: arm64
     InstallerUrl: https://github.com/forrest-wang01/portdeck/releases/download/v1.0.0/PortDeck-1.0.0-win-arm64.exe
-    InstallerSha256: D6A005653884E1C04193185E10B1CDC15A67F25A72FF34EBF57369EDBA92E8BE
+    InstallerSha256: 50A78505E82C8F67B924CF15B302CB0D54CE77F56D439A3A59A125FA76B98B3D
 ManifestType: installer
 ManifestVersion: 1.6.0

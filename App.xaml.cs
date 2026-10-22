@@ -15,6 +15,7 @@ public partial class App : Application
     protected override void OnStartup(StartupEventArgs e)
     {
         var settings = new SettingsStore().Load();
+        ApplyThemeResources(settings.Theme);
         LocalizationService.Instance.Initialize(settings.Language);
         Log.Info("PortDeck starting.");
 
@@ -67,6 +68,56 @@ public partial class App : Application
             if (MainWindow is MainWindow mainWindow)
                 mainWindow.ActivateFromExternal();
         }));
+    }
+
+    private void ApplyThemeResources(string theme)
+    {
+        var themeName = string.Equals(theme, "light", StringComparison.OrdinalIgnoreCase)
+            ? "Light"
+            : "Dark";
+        Resources.MergedDictionaries.Clear();
+        Resources.MergedDictionaries.Add(new ResourceDictionary
+        {
+            Source = new Uri($"Styles/Colors.{themeName}.xaml", UriKind.Relative)
+        });
+        Resources.MergedDictionaries.Add(new ResourceDictionary
+        {
+            Source = new Uri("Styles/Theme.xaml", UriKind.Relative)
+        });
+    }
+
+    public void ChangeTheme(string theme)
+    {
+        ApplyThemeResources(theme);
+
+        var oldWindow = MainWindow as MainWindow;
+        ShutdownMode = System.Windows.ShutdownMode.OnExplicitShutdown;
+
+        var newWindow = new MainWindow
+        {
+            Opacity = 0,
+            ShowInTaskbar = false
+        };
+        MainWindow = newWindow;
+        newWindow.Show();
+        newWindow.UpdateLayout();
+
+        newWindow.Dispatcher.BeginInvoke(
+            System.Windows.Threading.DispatcherPriority.Render,
+            new Action(() =>
+            {
+                newWindow.Opacity = 1;
+                newWindow.ShowInTaskbar = true;
+                newWindow.Activate();
+
+                newWindow.Dispatcher.BeginInvoke(
+                    System.Windows.Threading.DispatcherPriority.Background,
+                    new Action(() =>
+                    {
+                        oldWindow?.CloseForRebuild();
+                        ShutdownMode = System.Windows.ShutdownMode.OnMainWindowClose;
+                    }));
+            }));
     }
 
     private static void OnDispatcherUnhandledException(object sender, DispatcherUnhandledExceptionEventArgs e)

@@ -45,7 +45,12 @@ PortDeck turns that into one local dashboard:
 - **Docker / WSL mapping** of published container ports and running WSL listeners.
 - **Automatic updates** against GitHub Releases: download, SHA256 verification, exe replacement, and restart.
 - **Diagnostic logs** under `%LOCALAPPDATA%\PortDeck\logs`, with a shortcut in Settings.
+- **Appearance**: dark / light themes, 100% / 125% scale, resizable columns, sortable headers, and row context menus.
+- **Real process icons** extracted from each executable, with a neutral fallback glyph.
+- **Table interactions**: resizable/persisted columns, sortable headers, collapsible project groups, search-hit highlighting, and a compact “…” row menu.
 - **Local-first**: no telemetry, no remote assets, no network requests.
+
+![PortDeck light theme](docs/light.png)
 
 ![PortDeck detail drawer](docs/screenshot-detail.png)
 

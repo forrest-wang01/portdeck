@@ -1,5 +1,23 @@
 # Changelog
 
+## Unreleased
+
+- Added light theme with a restart prompt and theme selection in Settings.
+- Added 100% / 125% interface scale.
+- Added draggable table columns and sortable Port / Process / Project headers.
+- Added a row context menu with health, details, open, copy, and kill actions.
+- Made the detail drawer horizontally resizable and remembered its width.
+- Grouped Settings into collapsible Scanning, Data, Appearance, and Updates sections.
+- Hid system processes by default to reduce first-run noise.
+- Refined the dark palette, typography, KPI cards, filter chips, and action buttons.
+- Replaced process initials with real executable icons and a neutral fallback.
+- Added sorting for Address and PID columns and persisted column widths.
+- Replaced the settings list with collapsible groups and widened the settings content.
+- Moved secondary row actions into a compact “…” menu while keeping the right-click menu.
+- Added collapsible project groups, search-hit highlighting, and asynchronous icon loading.
+- Theme and interface-scale changes now rebuild the window and apply immediately.
+- Added a bottom-sheet detail layout for narrow windows.
+
 ## 1.0.0 — 2026-10-21
 
 PortDeck's first stable release.

@@ -5,9 +5,6 @@
              ShutdownMode="OnMainWindowClose">
     <Application.Resources>
         <ResourceDictionary>
-            <ResourceDictionary.MergedDictionaries>
-                <ResourceDictionary Source="Styles/Theme.xaml" />
-            </ResourceDictionary.MergedDictionaries>
             <loc:LocalizedCountConverter x:Key="PortCountConverter" />
         </ResourceDictionary>
     </Application.Resources>

@@ -1,4 +1,5 @@
 using System.Collections.ObjectModel;
+using System.Globalization;
 using System.IO;
 using System.Reflection;
 using System.Text;
@@ -7,6 +8,7 @@ using System.Runtime.InteropServices;
 using System.Windows;
 using System.Windows.Interop;
 using System.Windows.Controls;
+using System.Windows.Controls.Primitives;
 using System.Windows.Data;
 using System.Windows.Input;
 using System.Windows.Media;
@@ -52,12 +54,14 @@ public partial class MainWindow : Window
     private bool _lastScanFailed;
     private bool _hasHistoryBaseline;
     private bool _autoRefresh = true;
-    private bool _showSystem = true;
+    private bool _showSystem = false;
     private bool _sortDescending;
     private int _sortMode;
     private bool _groupByProject = true;
     private bool _closeToTray;
     private bool _autoCheckUpdates;
+    private string _theme = "dark";
+    private int _uiScale = 100;
     private bool _exitRequested;
     private bool _startMaximized;
     private bool _updateCheckInProgress;
@@ -69,6 +73,38 @@ public partial class MainWindow : Window
     private bool _suppressNav;
     private bool _suppressFilter;
 
+    public static readonly DependencyProperty SearchQueryProperty = DependencyProperty.Register(
+        nameof(SearchQuery), typeof(string), typeof(MainWindow), new PropertyMetadata(string.Empty));
+
+    public string SearchQuery
+    {
+        get => (string)GetValue(SearchQueryProperty);
+        set => SetValue(SearchQueryProperty, value);
+    }
+
+    public static readonly DependencyProperty StarColumnWidthProperty = DependencyProperty.Register(
+        nameof(StarColumnWidth), typeof(GridLength), typeof(MainWindow), new PropertyMetadata(new GridLength(32)));
+    public static readonly DependencyProperty PortColumnWidthProperty = DependencyProperty.Register(
+        nameof(PortColumnWidth), typeof(GridLength), typeof(MainWindow), new PropertyMetadata(new GridLength(88)));
+    public static readonly DependencyProperty ProcessColumnWidthProperty = DependencyProperty.Register(
+        nameof(ProcessColumnWidth), typeof(GridLength), typeof(MainWindow), new PropertyMetadata(new GridLength(2.2, GridUnitType.Star)));
+    public static readonly DependencyProperty ProjectColumnWidthProperty = DependencyProperty.Register(
+        nameof(ProjectColumnWidth), typeof(GridLength), typeof(MainWindow), new PropertyMetadata(new GridLength(1.5, GridUnitType.Star)));
+    public static readonly DependencyProperty AddressColumnWidthProperty = DependencyProperty.Register(
+        nameof(AddressColumnWidth), typeof(GridLength), typeof(MainWindow), new PropertyMetadata(new GridLength(1.3, GridUnitType.Star)));
+    public static readonly DependencyProperty PidColumnWidthProperty = DependencyProperty.Register(
+        nameof(PidColumnWidth), typeof(GridLength), typeof(MainWindow), new PropertyMetadata(new GridLength(62)));
+    public static readonly DependencyProperty ActionsColumnWidthProperty = DependencyProperty.Register(
+        nameof(ActionsColumnWidth), typeof(GridLength), typeof(MainWindow), new PropertyMetadata(new GridLength(72)));
+
+    public GridLength StarColumnWidth { get => (GridLength)GetValue(StarColumnWidthProperty); set => SetValue(StarColumnWidthProperty, value); }
+    public GridLength PortColumnWidth { get => (GridLength)GetValue(PortColumnWidthProperty); set => SetValue(PortColumnWidthProperty, value); }
+    public GridLength ProcessColumnWidth { get => (GridLength)GetValue(ProcessColumnWidthProperty); set => SetValue(ProcessColumnWidthProperty, value); }
+    public GridLength ProjectColumnWidth { get => (GridLength)GetValue(ProjectColumnWidthProperty); set => SetValue(ProjectColumnWidthProperty, value); }
+    public GridLength AddressColumnWidth { get => (GridLength)GetValue(AddressColumnWidthProperty); set => SetValue(AddressColumnWidthProperty, value); }
+    public GridLength PidColumnWidth { get => (GridLength)GetValue(PidColumnWidthProperty); set => SetValue(PidColumnWidthProperty, value); }
+    public GridLength ActionsColumnWidth { get => (GridLength)GetValue(ActionsColumnWidthProperty); set => SetValue(ActionsColumnWidthProperty, value); }
+
     public MainWindow()
     {
         InitializeComponent();
@@ -78,13 +114,17 @@ public partial class MainWindow : Window
         _autoRefresh = _settings.AutoRefresh;
         _intervalSeconds = NormalizeInterval(_settings.RefreshIntervalSeconds);
         _showSystem = _settings.ShowSystemProcesses;
+        GroupExpansionStore.Load(_settings.CollapsedGroups);
         _sortDescending = _settings.SortDescending;
-        _sortMode = _settings.SortMode is >= 0 and <= 2 ? _settings.SortMode : 0;
+        _sortMode = _settings.SortMode is >= 0 and <= 4 ? _settings.SortMode : 0;
         _groupByProject = _settings.GroupByProject;
         _closeToTray = _settings.CloseToTray;
         _autoCheckUpdates = _settings.AutoCheckUpdates;
         _startMaximized = _settings.WindowMaximized;
         _languagePreference = _settings.Language;
+        _theme = string.Equals(_settings.Theme, "light", StringComparison.OrdinalIgnoreCase) ? "light" : "dark";
+        _uiScale = _settings.UiScale is 125 ? 125 : 100;
+        RootLayout.LayoutTransform = new ScaleTransform(_uiScale / 100.0, _uiScale / 100.0);
 
         _refreshTimer = new DispatcherTimer { Interval = TimeSpan.FromSeconds(_intervalSeconds) };
         _refreshTimer.Tick += RefreshTimer_Tick;
@@ -100,7 +140,16 @@ public partial class MainWindow : Window
         UpdateHistoryEmptyState();
 
         ApplySettingsToControls();
+        RestoreColumnWidths();
         RestoreWindowBounds();
+        if (_uiScale == 125 && _settings.WindowWidth is null && !_startMaximized)
+        {
+            var area = SystemParameters.WorkArea;
+            Width = Math.Min(Width * 1.25, Math.Max(MinWidth, area.Width - 16));
+            Height = Math.Min(Height * 1.25, Math.Max(MinHeight, area.Height - 16));
+            Left = Math.Max(area.Left, area.Left + (area.Width - Width) / 2);
+            Top = Math.Max(area.Top, area.Top + (area.Height - Height) / 2);
+        }
         ApplyGrouping();
 
         var version = Assembly.GetExecutingAssembly().GetName().Version?.ToString(3) ?? "0.3.0";
@@ -126,6 +175,10 @@ public partial class MainWindow : Window
         ShowSystemToggle.IsChecked = _showSystem;
         CloseToTrayToggle.IsChecked = _closeToTray;
         AutoUpdateToggle.IsChecked = _autoCheckUpdates;
+        ThemeDark.IsChecked = _theme == "dark";
+        ThemeLight.IsChecked = _theme == "light";
+        Scale100.IsChecked = _uiScale == 100;
+        Scale125.IsChecked = _uiScale == 125;
         Interval3.IsChecked = _intervalSeconds == 3;
         Interval5.IsChecked = _intervalSeconds == 5;
         Interval10.IsChecked = _intervalSeconds == 10;
@@ -163,8 +216,9 @@ public partial class MainWindow : Window
         var virtualRight = virtualLeft + SystemParameters.VirtualScreenWidth;
         var virtualBottom = virtualTop + SystemParameters.VirtualScreenHeight;
 
-        width = Math.Min(width, SystemParameters.VirtualScreenWidth);
-        height = Math.Min(height, SystemParameters.VirtualScreenHeight);
+        var scale = _uiScale / 100.0;
+        width = Math.Min(width * scale, SystemParameters.VirtualScreenWidth);
+        height = Math.Min(height * scale, SystemParameters.VirtualScreenHeight);
 
         var target = new Rect(left, top, width, height);
         var virtualRect = new Rect(virtualLeft, virtualTop, virtualRight - virtualLeft, virtualBottom - virtualTop);
@@ -342,6 +396,12 @@ public partial class MainWindow : Window
                 2 => _sortDescending
                     ? grouped.ThenByDescending(entry => entry.ProjectName, StringComparer.OrdinalIgnoreCase)
                     : grouped.ThenBy(entry => entry.ProjectName, StringComparer.OrdinalIgnoreCase),
+                3 => _sortDescending
+                    ? grouped.ThenByDescending(entry => entry.AddressSummary, StringComparer.OrdinalIgnoreCase)
+                    : grouped.ThenBy(entry => entry.AddressSummary, StringComparer.OrdinalIgnoreCase),
+                4 => _sortDescending
+                    ? grouped.ThenByDescending(entry => entry.Pid)
+                    : grouped.ThenBy(entry => entry.Pid),
                 _ => _sortDescending
                     ? grouped.ThenByDescending(entry => entry.Port)
                     : grouped.ThenBy(entry => entry.Port)
@@ -556,6 +616,7 @@ public partial class MainWindow : Window
     {
         if (!_initialized) return;
         _search = SearchBox.Text;
+        SearchQuery = _search;
         ApplyFilters();
     }
 
@@ -599,6 +660,24 @@ public partial class MainWindow : Window
         _settings.Language = _languagePreference;
         LocalizationService.Instance.SetLanguage(_languagePreference);
         PersistSettings();
+    }
+
+    private void Theme_Checked(object sender, RoutedEventArgs e)
+    {
+        if (!_initialized || sender is not RadioButton button) return;
+        _theme = button.Tag?.ToString() == "light" ? "light" : "dark";
+        _settings.Theme = _theme;
+        PersistSettings();
+        ((App)System.Windows.Application.Current).ChangeTheme(_theme);
+    }
+
+    private void Scale_Checked(object sender, RoutedEventArgs e)
+    {
+        if (!_initialized || sender is not RadioButton button) return;
+        _uiScale = button.Tag?.ToString() == "125" ? 125 : 100;
+        _settings.UiScale = _uiScale;
+        PersistSettings();
+        ((App)System.Windows.Application.Current).ChangeTheme(_theme);
     }
 
     private void OnLanguageChanged(object? sender, EventArgs e)
@@ -841,6 +920,16 @@ public partial class MainWindow : Window
                     : list.OrderBy(entry => entry.ProjectGroupKey, StringComparer.OrdinalIgnoreCase))
                 .ThenBy(entry => entry.Port)
                 .ToList(),
+            3 => (_sortDescending
+                    ? list.OrderByDescending(entry => entry.AddressSummary, StringComparer.OrdinalIgnoreCase)
+                    : list.OrderBy(entry => entry.AddressSummary, StringComparer.OrdinalIgnoreCase))
+                .ThenBy(entry => entry.Port)
+                .ToList(),
+            4 => (_sortDescending
+                    ? list.OrderByDescending(entry => entry.Pid)
+                    : list.OrderBy(entry => entry.Pid))
+                .ThenBy(entry => entry.Port)
+                .ToList(),
             _ => (_sortDescending
                     ? list.OrderByDescending(entry => entry.Port)
                     : list.OrderBy(entry => entry.Port))
@@ -855,10 +944,133 @@ public partial class MainWindow : Window
         {
             1 => _sortDescending ? "SortProcessDesc" : "SortProcessAsc",
             2 => _sortDescending ? "SortProjectDesc" : "SortProjectAsc",
+            3 => _sortDescending ? "SortAddressDesc" : "SortAddressAsc",
+            4 => _sortDescending ? "SortPidDesc" : "SortPidAsc",
             _ => _sortDescending ? "SortPortDesc" : "SortPortAsc"
         };
 
         SortLabel.Text = L.Get(key);
+        UpdateSortHeaders();
+    }
+
+    private void HeaderPort_Click(object sender, RoutedEventArgs e) => SetSort(0);
+
+    private void HeaderProcess_Click(object sender, RoutedEventArgs e) => SetSort(1);
+
+    private void HeaderProject_Click(object sender, RoutedEventArgs e) => SetSort(2);
+
+    private void HeaderAddress_Click(object sender, RoutedEventArgs e) => SetSort(3);
+
+    private void HeaderPid_Click(object sender, RoutedEventArgs e) => SetSort(4);
+
+    private void SetSort(int mode)
+    {
+        if (_sortMode == mode)
+            _sortDescending = !_sortDescending;
+        else
+        {
+            _sortMode = mode;
+            _sortDescending = false;
+        }
+
+        UpdateSortLabel();
+        ApplyFilters();
+        PersistSettings();
+    }
+
+    private void UpdateSortHeaders()
+    {
+        if (HeaderPort is null) return;
+
+        HeaderPort.Content = L.Get("ColumnPort") + (_sortMode == 0 ? (_sortDescending ? "  ↓" : "  ↑") : "");
+        HeaderProcess.Content = L.Get("ColumnProcess") + (_sortMode == 1 ? (_sortDescending ? "  ↓" : "  ↑") : "");
+        HeaderProject.Content = L.Get("ColumnProject") + (_sortMode == 2 ? (_sortDescending ? "  ↓" : "  ↑") : "");
+        HeaderAddress.Content = L.Get("ColumnAddress") + (_sortMode == 3 ? (_sortDescending ? "  ↓" : "  ↑") : "");
+        HeaderPid.Content = "PID" + (_sortMode == 4 ? (_sortDescending ? "  ↓" : "  ↑") : "");
+    }
+
+    private void RestoreColumnWidths()
+    {
+        var parts = (_settings.ColumnLayout ?? "").Split('|');
+        if (parts.Length != 7) return;
+
+        var properties = new[]
+        {
+            StarColumnWidthProperty,
+            PortColumnWidthProperty,
+            ProcessColumnWidthProperty,
+            ProjectColumnWidthProperty,
+            AddressColumnWidthProperty,
+            PidColumnWidthProperty,
+            ActionsColumnWidthProperty
+        };
+
+        for (var i = 0; i < parts.Length; i++)
+        {
+            var text = parts[i].Trim();
+            var isStar = text.EndsWith('*');
+            var number = isStar ? text[..^1] : text;
+            if (!double.TryParse(number, NumberStyles.Float, CultureInfo.InvariantCulture, out var value) || value <= 0)
+                continue;
+
+            SetValue(properties[i], isStar ? new GridLength(value, GridUnitType.Star) : new GridLength(value));
+        }
+    }
+
+    private void ColumnResize_DragCompleted(object sender, DragCompletedEventArgs e)
+    {
+        _settings.ColumnLayout = string.Join("|", new[]
+        {
+            FormatColumnWidth(StarColumnWidth),
+            FormatColumnWidth(PortColumnWidth),
+            FormatColumnWidth(ProcessColumnWidth),
+            FormatColumnWidth(ProjectColumnWidth),
+            FormatColumnWidth(AddressColumnWidth),
+            FormatColumnWidth(PidColumnWidth),
+            FormatColumnWidth(ActionsColumnWidth)
+        });
+        PersistSettings();
+    }
+
+    private static string FormatColumnWidth(GridLength width) =>
+        width.IsStar
+            ? width.Value.ToString("0.###", CultureInfo.InvariantCulture) + "*"
+            : width.Value.ToString("0.###", CultureInfo.InvariantCulture);
+
+    private void ColumnResize_DragDelta(object sender, DragDeltaEventArgs e)
+    {
+        if (sender is not Thumb thumb || thumb.Parent is not Grid grid)
+            return;
+
+        var index = Grid.GetColumn(thumb);
+        if (index < 0 || index >= grid.ColumnDefinitions.Count)
+            return;
+
+        var actual = grid.ColumnDefinitions[index].ActualWidth;
+        if (actual <= 0) return;
+
+        var minimum = index switch
+        {
+            1 => 70d,
+            2 => 140d,
+            3 => 100d,
+            4 => 90d,
+            5 => 54d,
+            6 => 60d,
+            _ => 24d
+        };
+        var width = Math.Max(minimum, actual + e.HorizontalChange);
+        var value = new GridLength(width);
+
+        switch (index)
+        {
+            case 1: PortColumnWidth = value; break;
+            case 2: ProcessColumnWidth = value; break;
+            case 3: ProjectColumnWidth = value; break;
+            case 4: AddressColumnWidth = value; break;
+            case 5: PidColumnWidth = value; break;
+            case 6: ActionsColumnWidth = value; break;
+        }
     }
 
     private void Sort_Click(object sender, RoutedEventArgs e)
@@ -866,7 +1078,7 @@ public partial class MainWindow : Window
         if (_sortDescending)
         {
             _sortDescending = false;
-            _sortMode = (_sortMode + 1) % 3;
+            _sortMode = (_sortMode + 1) % 5;
         }
         else
         {
@@ -1040,10 +1252,11 @@ public partial class MainWindow : Window
             double.IsFinite(bounds.Left) &&
             double.IsFinite(bounds.Top))
         {
+            var scale = _uiScale / 100.0;
             _settings.WindowLeft = bounds.Left;
             _settings.WindowTop = bounds.Top;
-            _settings.WindowWidth = bounds.Width;
-            _settings.WindowHeight = bounds.Height;
+            _settings.WindowWidth = bounds.Width / scale;
+            _settings.WindowHeight = bounds.Height / scale;
         }
 
         _settings.WindowMaximized = WindowState == WindowState.Maximized;
@@ -1052,11 +1265,27 @@ public partial class MainWindow : Window
         _settings.ShowSystemProcesses = _showSystem;
         _settings.CloseToTray = _closeToTray;
         _settings.AutoCheckUpdates = _autoCheckUpdates;
+        _settings.Theme = _theme;
+        _settings.UiScale = _uiScale;
         _settings.SortDescending = _sortDescending;
         _settings.SortMode = _sortMode;
         _settings.GroupByProject = _groupByProject;
         _settings.Language = _languagePreference;
+        _settings.CollapsedGroups = GroupExpansionStore.Serialize();
         _settingsStore.Save(_settings);
+    }
+
+    private void Group_Expanded(object sender, RoutedEventArgs e) => SetGroupExpanded(sender, true);
+
+    private void Group_Collapsed(object sender, RoutedEventArgs e) => SetGroupExpanded(sender, false);
+
+    private void SetGroupExpanded(object sender, bool expanded)
+    {
+        if (sender is not Expander { DataContext: System.Windows.Data.CollectionViewGroup group }) return;
+        GroupExpansionStore.Set(group.Name?.ToString(), expanded);
+
+        if (_initialized)
+            PersistSettings();
     }
 
     private void OnSessionEnding(object? sender, SessionEndingCancelEventArgs e)
@@ -1120,6 +1349,34 @@ public partial class MainWindow : Window
     private void KillPort_Click(object sender, RoutedEventArgs e)
     {
         if (sender is Button { Tag: PortEntry entry }) ShowKillConfirmation(entry);
+    }
+
+    private static PortEntry? ContextEntry(object sender) =>
+        sender is MenuItem { DataContext: PortEntry entry } ? entry : null;
+
+    private async void ContextHealth_Click(object sender, RoutedEventArgs e)
+    {
+        if (ContextEntry(sender) is { } entry) await CheckHealthAsync(entry);
+    }
+
+    private void ContextDetails_Click(object sender, RoutedEventArgs e)
+    {
+        if (ContextEntry(sender) is { } entry) OpenDetail(entry);
+    }
+
+    private void ContextOpen_Click(object sender, RoutedEventArgs e)
+    {
+        if (ContextEntry(sender) is { } entry) OpenEntry(entry);
+    }
+
+    private void ContextCopy_Click(object sender, RoutedEventArgs e)
+    {
+        if (ContextEntry(sender) is { } entry) CopyEntry(entry);
+    }
+
+    private void ContextKill_Click(object sender, RoutedEventArgs e)
+    {
+        if (ContextEntry(sender) is { } entry) ShowKillConfirmation(entry);
     }
 
     private async void CheckHealth_Click(object sender, RoutedEventArgs e)
@@ -1215,11 +1472,69 @@ public partial class MainWindow : Window
         if (sender is Button { Tag: PortEntry entry }) OpenDetail(entry);
     }
 
+    private void RowMore_Click(object sender, RoutedEventArgs e)
+    {
+        if (sender is not Button { ContextMenu: { } menu } button) return;
+        menu.PlacementTarget = button;
+        menu.IsOpen = true;
+    }
+
     private void OpenDetail(PortEntry entry)
     {
         _selected = entry;
         DetailPanel.DataContext = entry;
         DetailOverlay.Visibility = Visibility.Visible;
+        UpdateDetailLayout();
+    }
+
+    private void Window_SizeChanged(object sender, SizeChangedEventArgs e)
+    {
+        if (!_initialized || DetailOverlay.Visibility != Visibility.Visible) return;
+        UpdateDetailLayout();
+    }
+
+    private void UpdateDetailLayout()
+    {
+        if (DetailPanel is null || DetailResizeThumb is null) return;
+
+        var useBottomSheet = ActualWidth < 1120;
+        DetailResizeThumb.Visibility = useBottomSheet ? Visibility.Collapsed : Visibility.Visible;
+
+        if (useBottomSheet)
+        {
+            DetailPanel.Width = double.NaN;
+            DetailPanel.Height = Math.Clamp(ActualHeight * 0.62, 320, 560);
+            DetailPanel.HorizontalAlignment = HorizontalAlignment.Stretch;
+            DetailPanel.VerticalAlignment = VerticalAlignment.Bottom;
+            DetailPanel.Margin = new Thickness(12, 0, 12, 12);
+            DetailPanel.CornerRadius = new CornerRadius(16, 16, 0, 0);
+        }
+        else
+        {
+            var maxWidth = Math.Max(340, ActualWidth - 48);
+            DetailPanel.Width = Math.Clamp(_settings.DetailWidth, 340, Math.Min(680, maxWidth));
+            DetailPanel.Height = double.NaN;
+            DetailPanel.HorizontalAlignment = HorizontalAlignment.Right;
+            DetailPanel.VerticalAlignment = VerticalAlignment.Stretch;
+            DetailPanel.Margin = new Thickness(0, 12, 12, 12);
+            DetailPanel.CornerRadius = new CornerRadius(16);
+        }
+    }
+
+    private void DetailResize_DragDelta(object sender, DragDeltaEventArgs e)
+    {
+        if (DetailPanel is null) return;
+        var maxWidth = Math.Max(340, ActualWidth - 48);
+        DetailPanel.Width = Math.Clamp(
+            DetailPanel.ActualWidth - e.HorizontalChange,
+            340,
+            Math.Min(680, maxWidth));
+    }
+
+    private void DetailResize_DragCompleted(object sender, DragCompletedEventArgs e)
+    {
+        _settings.DetailWidth = DetailPanel.Width;
+        PersistSettings();
     }
 
     private void DetailOverlay_MouseLeftButtonUp(object sender, MouseButtonEventArgs e) =>
@@ -1474,6 +1789,12 @@ public partial class MainWindow : Window
                 e.Handled = true;
             }
         }
+    }
+
+    internal void CloseForRebuild()
+    {
+        _exitRequested = true;
+        Close();
     }
 
     private void Window_Closing(object? sender, System.ComponentModel.CancelEventArgs e)

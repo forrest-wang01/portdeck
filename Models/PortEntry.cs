@@ -2,7 +2,10 @@ using System.ComponentModel;
 using System.Globalization;
 using System.IO;
 using System.Runtime.CompilerServices;
+using System.Text.Json.Serialization;
+using System.Windows.Media;
 using PortDeck.Localization;
+using PortDeck.Services;
 
 namespace PortDeck.Models;
 
@@ -30,6 +33,9 @@ public sealed class PortEntry : INotifyPropertyChanged
     private string? _healthError;
     private int? _healthStatusCode;
     private string? _healthScheme;
+    private bool _processIconLoaded;
+    private bool _processIconLoading;
+    private ImageSource? _processIcon;
 
     public int Port { get; init; }
     public int Pid { get; init; }
@@ -79,13 +85,41 @@ public sealed class PortEntry : INotifyPropertyChanged
 
     public string PortLabel => Port.ToString();
 
-    public string ProcessInitial
+    [JsonIgnore]
+    public ImageSource? ProcessIcon
     {
         get
         {
-            var name = string.IsNullOrWhiteSpace(ProcessName) ? "?" : ProcessName.Trim();
-            return name[..1].ToUpperInvariant();
+            if (!_processIconLoaded && !_processIconLoading)
+                StartIconLoad();
+
+            return _processIcon;
         }
+    }
+
+    private void StartIconLoad()
+    {
+        _processIconLoading = true;
+        var path = !string.IsNullOrWhiteSpace(ExePath) ? ExePath : ProcessFile;
+        var context = SynchronizationContext.Current;
+
+        _ = Task.Run(() =>
+        {
+            var icon = ProcessIconLoader.GetIcon(path);
+            _processIcon = icon;
+            _processIconLoaded = true;
+
+            void Notify()
+            {
+                OnPropertyChanged(nameof(ProcessIcon));
+                _processIconLoading = false;
+            }
+
+            if (context is not null)
+                context.Post(_ => Notify(), null);
+            else
+                Notify();
+        });
     }
 
     public string AddressSummary
@@ -111,7 +145,11 @@ public sealed class PortEntry : INotifyPropertyChanged
         _ => L.Get("ExposureLocal")
     };
 
-    public string ProjectName => Project?.Name ?? "—";
+    public string ProjectName => !string.IsNullOrWhiteSpace(Project?.Name)
+        ? Project!.Name
+        : IsSystem
+            ? L.Get("SystemService")
+            : L.Get("StandaloneApp");
 
     public string ProjectType => Project?.Type ?? string.Empty;
 

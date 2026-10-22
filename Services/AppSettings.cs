@@ -12,7 +12,12 @@ public sealed class AppSettings
     public bool WindowMaximized { get; set; }
     public bool AutoRefresh { get; set; } = true;
     public int RefreshIntervalSeconds { get; set; } = 5;
-    public bool ShowSystemProcesses { get; set; } = true;
+    public bool ShowSystemProcesses { get; set; } = false;
+    public string Theme { get; set; } = "dark";
+    public int UiScale { get; set; } = 100;
+    public double DetailWidth { get; set; } = 440;
+    public string ColumnLayout { get; set; } = "";
+    public string CollapsedGroups { get; set; } = "";
     public bool CloseToTray { get; set; }
     public bool SortDescending { get; set; }
     public int SortMode { get; set; }

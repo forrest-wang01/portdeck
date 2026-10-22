@@ -25,9 +25,12 @@ less visual noise.
 
 ## Assets
 
-- `PortDeck-1.1.0-win-x64.exe`
-- `PortDeck-1.1.0-win-arm64.exe`
-- Matching `.sha256` files
+| Asset | SHA256 |
+| --- | --- |
+| `PortDeck-1.1.0-win-x64.exe` | `6a2c7c66d121af5377fb9c82df2ccfb1353945948486c198c385b928e3e23a79` |
+| `PortDeck-1.1.0-win-arm64.exe` | `ef7cb605a33452960cd85a31e07dadcf5971543c21db6bff1242ff0ad821bdb5` |
+
+Matching `.sha256` files are attached to the release.
 
 ## Signing
 

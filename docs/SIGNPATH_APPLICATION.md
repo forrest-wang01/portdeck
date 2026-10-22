@@ -4,7 +4,7 @@ Application URL: <https://signpath.org/apply>
 
 Repository: <https://github.com/forrest-wang01/portdeck>
 
-Release: <https://github.com/forrest-wang01/portdeck/releases/tag/v1.0.0>
+Release: <https://github.com/forrest-wang01/portdeck/releases/tag/v1.1.0>
 
 ## Copy-paste project summary
 
@@ -31,7 +31,7 @@ executables.
 
 ## Eligibility notes
 
-- The project is public and has a real v1.0.0 release.
+- The project is public and has a real v1.1.0 release.
 - It uses the MIT license and contains no proprietary components.
 - It is maintained and documented in the README.
 - It is a developer productivity tool, not a hacking or vulnerability scanner.

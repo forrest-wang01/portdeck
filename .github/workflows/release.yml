@@ -176,6 +176,7 @@ jobs:
           $uri = "https://api.github.com/repos/${{ github.repository }}/releases/tags/${{ github.ref_name }}"
           $release = Invoke-RestMethod -Uri $uri -Headers $headers
           if ($release.body -match "SignPath Foundation") { return }
+          $patchUri = "https://api.github.com/repos/${{ github.repository }}/releases/$($release.id)"
 
           $policy = @(
             "",
@@ -188,6 +189,6 @@ jobs:
             "GitHub Actions are signed. See ``CODE_SIGNING_POLICY.md`` and ``PRIVACY.md``."
           ) -join "`n"
           $body = "$($release.body)$policy"
-          Invoke-RestMethod -Method Patch -Uri $uri -Headers $headers `
+          Invoke-RestMethod -Method Patch -Uri $patchUri -Headers $headers `
             -Body (@{ body = $body } | ConvertTo-Json) `
             -ContentType "application/json" | Out-Null
